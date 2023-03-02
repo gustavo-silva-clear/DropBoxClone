@@ -201,7 +201,7 @@ class DropBoxController {
 
   getFileIconView(file) {
     
-    console.log(file.type)
+    console.log(file.mimetype)
 
       switch(file.mimetype)
 
@@ -381,6 +381,8 @@ class DropBoxController {
       <div class="name text-center">${file.originalFilename}</div>
   </li>`
 
+  this.initEventsLi(li);
+
     return li;
  
   }
@@ -403,6 +405,19 @@ class DropBoxController {
 
 
     });
+  }
+
+  initEventsLi(li){
+
+li.addEventListener('click' , event =>{
+
+li.classList.toggle('selected');
+
+
+})
 
   }
+
+
+
 }
