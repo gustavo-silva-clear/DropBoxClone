@@ -8,6 +8,8 @@ class DropBoxController {
     this.namefileEl = this.snackModalEl.querySelector('.filename')
     this.timeleftEl = this.snackModalEl.querySelector('.timeleft')
     this.listFilesEl = document.querySelector('#list-of-files-and-directories')
+    this.onselectionchange = new Event('selectionchange');
+
 
     this.connectFirebase();
     this.initEvents();
@@ -37,6 +39,13 @@ class DropBoxController {
   }
 
   initEvents() {
+
+    this.listFilesEl.addEventListener('selectionchange' , e => {
+
+      console.log('selectionchange');
+
+    });
+
 
     this.btnSendFileEl.addEventListener('click', event => {
 
@@ -409,6 +418,8 @@ class DropBoxController {
   initEventsLi(li) {
 
     li.addEventListener('click', e => {
+
+      this.listFilesEl.dispatchEvent(this.onselectionchange);
 
       if(e.shiftKey){
 
