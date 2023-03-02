@@ -13,7 +13,7 @@ class DropBoxController {
     this.connectFirebase();
   }
 
-  
+
 
   initEvents() {
 
@@ -25,28 +25,44 @@ class DropBoxController {
 
     this.inputFilesEl.addEventListener('change', event => {
 
+      this.btnSendFileEl.disabled = true;
+
       this.uploadTask(event.target.files).then(resps => {
 
         resps.forEach(resp => {
 
-          console.log(resp.files['input-file']);
           this.getFirebaseRef().push().set(resp.files['input-file']);
 
         });
 
-        this.modalShow(false);
+        this.uploadComplete();
+
+      }).catch(err => {
+
+        this.uploadComplete();
+        console.log(err);
 
       });
 
       this.modalShow();
 
-      this.inputFilesEl.value = '';
-
     });
 
   }
 
-connectFirebase() {
+  uploadComplete() {
+
+
+    this.modalShow(false);
+
+    this.inputFilesEl.value = '';
+    
+    this.btnSendFileEl.disabled = false;
+
+
+  }
+
+  connectFirebase() {
 
     const firebaseConfig = {
       apiKey: "AIzaSyCcGkOrWfYhXCKtrn7_FBn89wZCJGGP9GA",
@@ -62,17 +78,28 @@ connectFirebase() {
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     if (firebase) {
-      console.log(firebase);
-      console.log("Firebase Status: Running")
+      console.log("Database Running!");
     }
 
   }
+
+
+
+
+  getFirebaseRef() {
+
+    return firebase.database().ref('files')
+
+  }
+
+
   modalShow(show = true) {
 
     this.snackModalEl.style.display = (show) ? 'block' : 'none';
 
 
   }
+
 
   uploadTask(files) {
 
