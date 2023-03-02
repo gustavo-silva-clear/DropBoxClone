@@ -10,6 +10,11 @@ class DropBoxController {
     this.listFilesEl = document.querySelector('#list-of-files-and-directories')
     this.onselectionchange = new Event('selectionchange');
 
+    this.btnNewFolder = document.querySelector('#btn-new-folder');
+    this.btnRename = document.querySelector('#btn-rename');
+    this.btnDelete = document.querySelector('#btn-delete');
+
+
 
     this.connectFirebase();
     this.initEvents();
@@ -38,11 +43,36 @@ class DropBoxController {
 
   }
 
+  getSelection() {
+
+    return this.listFilesEl.querySelectorAll('.selected')
+
+  }
+
   initEvents() {
 
-    this.listFilesEl.addEventListener('selectionchange' , e => {
+    this.listFilesEl.addEventListener('selectionchange', e => {
 
-      console.log('selectionchange');
+      switch (this.getSelection().length) {
+
+        case 0:
+          this.btnDelete.style.display = '';
+          this.btnRename.style.display = '';
+          break;
+
+        case 1:
+          this.btnDelete.style.display = 'block';
+          this.btnRename.style.display = 'block';
+          break;
+
+        default:
+          this.btnDelete.style.display = 'block';
+          this.btnRename.style.display = 'none';
+
+
+
+
+      }
 
     });
 
@@ -419,49 +449,50 @@ class DropBoxController {
 
     li.addEventListener('click', e => {
 
-      this.listFilesEl.dispatchEvent(this.onselectionchange);
-
-      if(e.shiftKey){
+      if (e.shiftKey) {
 
         let firstLi = this.listFilesEl.querySelector('.selected');
 
-        if(firstLi){
+        if (firstLi) {
 
           let indexStart;
           let indexEnd;
           let lis = li.parentElement.childNodes;
 
-            lis.forEach((el , index) =>{
+          lis.forEach((el, index) => {
 
-              if(firstLi === el) indexStart = index;
-              if(li == el)indexEnd = index;
+            if (firstLi === el) indexStart = index;
+            if (li == el) indexEnd = index;
 
 
-            });
+          });
 
-            let index = [indexStart, indexEnd].sort();
+          let index = [indexStart, indexEnd].sort();
 
-            lis.forEach((el , i) =>{
+          lis.forEach((el, i) => {
 
-            if(i >= index[0] && i <= index[1]){
+            if (i >= index[0] && i <= index[1]) {
 
               el.classList.add('selected')
-          
+
             }
 
 
-            });
+          });
 
-            return true;
+
+          this.listFilesEl.dispatchEvent(this.onselectionchange);
+
+
+          return true;
 
         }
 
       }
 
-      if(!e.ctrlKey)
-      {
+      if (!e.ctrlKey) {
 
-        this.listFilesEl.querySelectorAll('li.selected').forEach(el =>{
+        this.listFilesEl.querySelectorAll('li.selected').forEach(el => {
 
           el.classList.remove('selected')
 
@@ -470,6 +501,9 @@ class DropBoxController {
       }
 
       li.classList.toggle('selected');
+
+      this.listFilesEl.dispatchEvent(this.onselectionchange);
+
 
 
     })
