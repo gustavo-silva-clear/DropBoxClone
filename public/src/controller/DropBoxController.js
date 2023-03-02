@@ -9,10 +9,11 @@ class DropBoxController {
     this.timeleftEl = this.snackModalEl.querySelector('.timeleft')
 
 
-
     this.initEvents();
-
+    this.connectFirebase();
   }
+
+  
 
   initEvents() {
 
@@ -24,7 +25,18 @@ class DropBoxController {
 
     this.inputFilesEl.addEventListener('change', event => {
 
-      this.uploadTask(event.target.files);
+      this.uploadTask(event.target.files).then(resps => {
+
+        resps.forEach(resp => {
+
+          console.log(resp.files['input-file']);
+          this.getFirebaseRef().push().set(resp.files['input-file']);
+
+        });
+
+        this.modalShow(false);
+
+      });
 
       this.modalShow();
 
@@ -34,6 +46,27 @@ class DropBoxController {
 
   }
 
+connectFirebase() {
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcGkOrWfYhXCKtrn7_FBn89wZCJGGP9GA",
+      authDomain: "dropbox-clone-8387c.firebaseapp.com",
+      databaseURL: "https://dropbox-clone-8387c-default-rtdb.firebaseio.com",
+      projectId: "dropbox-clone-8387c",
+      storageBucket: "dropbox-clone-8387c.appspot.com",
+      messagingSenderId: "874317686958",
+      //appId: "1:874317686958:web:75ed8d880858d6c860253f",
+      measurementId: "G-JKM18LV2X7"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    if (firebase) {
+      console.log(firebase);
+      console.log("Firebase Status: Running")
+    }
+
+  }
   modalShow(show = true) {
 
     this.snackModalEl.style.display = (show) ? 'block' : 'none';
@@ -55,10 +88,6 @@ class DropBoxController {
 
         ajax.onload = event => {
 
-
-          this.modalShow(false);
-
-
           try {
 
             resolve(JSON.parse(ajax.responseText));
@@ -73,7 +102,6 @@ class DropBoxController {
 
         ajax.onerror = event => {
 
-          this.modalShow(false);
           reject(event);
 
         };
@@ -168,7 +196,7 @@ class DropBoxController {
       case 'image/jpg':
       case 'image/png':
       case 'image/gif':
-return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
+        return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
               <filter height="102%" width="101.4%" id="mc-content-unknown-large-a" filterUnits="objectBoundingBox" y="-.5%" x="-.7%">
                   <feOffset result="shadowOffsetOuter1" in="SourceAlpha" dy="1"></feOffset>
                   <feColorMatrix values="0 0 0 0 0.858823529 0 0 0 0 0.870588235 0 0 0 0 0.88627451 0 0 0 1 0" in="shadowOffsetOuter1">
@@ -210,7 +238,7 @@ return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmln
 
         break;
 
-        case 'application/pdf':
+      case 'application/pdf':
 
         return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
         <filter height="102%" width="101.4%" id="mc-content-unknown-large-a" filterUnits="objectBoundingBox" y="-.5%" x="-.7%">
@@ -246,9 +274,9 @@ return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmln
     </svg>`;
         break;
 
-        case 'audio/mp3':
-        case 'audio/wav':
-        case 'audio/ogg':  
+      case 'audio/mp3':
+      case 'audio/wav':
+      case 'audio/ogg':
 
         return `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
         <title>content-audio-large</title>
@@ -273,7 +301,7 @@ return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmln
       case 'video/mp4':
       case 'video/quicktime':
 
-      return `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
+        return `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
       <title>content-video-large</title>
       <defs>
           <rect id="mc-content-video-large-b" x="30" y="43" width="100" height="74" rx="4"></rect>
@@ -291,7 +319,7 @@ return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmln
       </g>
   </svg>`
 
-  break;
+        break;
 
 
       default:
