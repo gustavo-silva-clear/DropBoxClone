@@ -200,12 +200,11 @@ class DropBoxController {
   }
 
   getFileIconView(file) {
-    
+
     console.log(file.mimetype)
 
-      switch(file.mimetype)
-
-   {   case 'folder':
+    switch (file.mimetype) {
+      case 'folder':
 
         return `
 
@@ -381,10 +380,10 @@ class DropBoxController {
       <div class="name text-center">${file.originalFilename}</div>
   </li>`
 
-  this.initEventsLi(li);
+    this.initEventsLi(li);
 
     return li;
- 
+
   }
 
 
@@ -407,14 +406,62 @@ class DropBoxController {
     });
   }
 
-  initEventsLi(li){
+  initEventsLi(li) {
 
-li.addEventListener('click' , event =>{
+    li.addEventListener('click', e => {
 
-li.classList.toggle('selected');
+      if(e.shiftKey){
+
+        let firstLi = this.listFilesEl.querySelector('.selected');
+
+        if(firstLi){
+
+          let indexStart;
+          let indexEnd;
+          let lis = li.parentElement.childNodes;
+
+            lis.forEach((el , index) =>{
+
+              if(firstLi === el) indexStart = index;
+              if(li == el)indexEnd = index;
 
 
-})
+            });
+
+            let index = [indexStart, indexEnd].sort();
+
+            lis.forEach((el , i) =>{
+
+            if(i >= index[0] && i <= index[1]){
+
+              el.classList.add('selected')
+          
+            }
+
+
+            });
+
+            return true;
+
+        }
+
+      }
+
+      if(!e.ctrlKey)
+      {
+
+        this.listFilesEl.querySelectorAll('li.selected').forEach(el =>{
+
+          el.classList.remove('selected')
+
+        })
+
+      }
+
+      li.classList.toggle('selected');
+
+
+    })
 
   }
 
