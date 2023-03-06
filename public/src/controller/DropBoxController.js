@@ -167,7 +167,14 @@ class DropBoxController {
 
         resps.forEach(resp => {
 
-          this.getFirebaseRef().push().set(resp.files['input-file']);
+          this.getFirebaseRef().push().set({
+
+            name: resp.name,
+            type: resp.contentType,
+            path: resp.downloadURLs[0],
+            size: resp.size
+
+          });
 
         });
 
@@ -266,19 +273,37 @@ class DropBoxController {
 
     [...files].forEach((file) => {
 
-      let formData = new FormData();
+      promises.push(new Promise((resolve, reject) => {
 
-      formData.append("input-file", file);
+        let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
 
+        let task = fileRef.put(file);
 
-      promises.push(this.ajax('/upload', 'POST', formData, () => {
+        task.on('state_changed', snapshot => {
 
+          this.uploadProgress({
+            loaded: snapshot.bytesTransferred,
+            total: snapshot.totalBytes
+          } ,file); 
 
-        this.uploadProgress(event, file);
+        }, error => {
 
-      }, () => {
+          console.error(error);
+          reject(error);
 
-        this.startUploadTime = Date.now();
+        }, () => {
+
+          fileRef.getMetadata().then(metadata =>{
+
+            resolve(metadata);
+
+          }).catch(err=>{
+
+            reject(err);
+          });
+
+        });
+
 
       }));
 
@@ -582,7 +607,7 @@ class DropBoxController {
 
       if ((i + 1) === this.currentFolder.length) {
 
-        span.innerHTML =folderName;
+        span.innerHTML = folderName;
 
       }
 
@@ -602,7 +627,7 @@ class DropBoxController {
         
         `
 
-        
+
 
       }
 
@@ -612,9 +637,9 @@ class DropBoxController {
 
     this.navEl.innerHTML = nav.innerHTML;
 
-    this.navEl.querySelectorAll('a').forEach(a=>{
+    this.navEl.querySelectorAll('a').forEach(a => {
 
-      a.addEventListener('click' , e =>{
+      a.addEventListener('click', e => {
 
         e.preventDefault();
 
@@ -647,7 +672,7 @@ class DropBoxController {
 
         default:
 
-          window.open('/file?path=' + file.filepath);
+          window.open(file.path);
 
       }
 
@@ -719,3 +744,15 @@ class DropBoxController {
 
 
 }
+
+/*service firebase.storage {
+ match /b/{bucket}/o {
+  match /{allPaths=**} {
+  	allow read , write;
+  	}
+    }
+ }
+ 
+ regra pra qualquer usuario ler e gravar no banco
+ 
+ */
