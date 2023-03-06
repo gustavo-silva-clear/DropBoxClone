@@ -647,7 +647,7 @@ class DropBoxController {
 
         default:
 
-          window.open('/file?path=' + file.path);
+          window.open('/file?path=' + file.filepath);
 
       }
 
