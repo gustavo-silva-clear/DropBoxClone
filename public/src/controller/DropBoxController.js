@@ -1,7 +1,7 @@
 class DropBoxController {
   constructor() {
 
-    this.currentFolder = ['Gusta'];
+
 
     this.btnSendFileEl = document.querySelector('#btn-send-file');
     this.inputFilesEl = document.querySelector('#files');
@@ -11,6 +11,8 @@ class DropBoxController {
     this.timeleftEl = this.snackModalEl.querySelector('.timeleft')
     this.listFilesEl = document.querySelector('#list-of-files-and-directories')
     this.onselectionchange = new Event('selectionchange');
+
+    this.currentFolder = ['dropbox'];
 
     this.btnNewFolder = document.querySelector('#btn-new-folder');
     this.btnRename = document.querySelector('#btn-rename');
@@ -83,17 +85,17 @@ class DropBoxController {
 
   initEvents() {
 
-    this.btnNewFolder.addEventListener('click', e => {
+    this.btnNewFolder.addEventListener( "click" , e => {
 
-      let name = prompt('Nome da nova pasta:');
+      let name = prompt("Nome da nova pasta: ");
 
       if (name) {
 
         this.getFirebaseRef().push().set({
-
-
-
-        })
+          name,
+          mimetype:'folder',
+          filepath:this.currentFolder.join('/')
+        });
 
       }
 
@@ -332,7 +334,7 @@ class DropBoxController {
 
     console.log(file.mimetype)
 
-    switch (file.mimetype) {
+    switch (file.mimetype || file.type) {
       case 'folder':
 
         return `
@@ -504,11 +506,18 @@ class DropBoxController {
     li.dataset.key = key;
     li.dataset.file = JSON.stringify(file);
 
-    li.innerHTML = `
-      <li>
-      ${this.getFileIconView(file)}
-      <div class="name text-center">${file.originalFilename}</div>
-  </li>`
+    if(file.originalFilename){
+      li.innerHTML =  `
+          ${this.getFileIconView(file)}
+          <div class="name text-center">${file.originalFilename}</div>
+      `;
+  }
+  else if(file.name){
+      li.innerHTML =  `
+          ${this.getFileIconView(file)}
+          <div class="name text-center">${file.name}</div>
+      `;
+  }
 
     this.initEventsLi(li);
 
