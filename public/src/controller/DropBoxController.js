@@ -1,7 +1,7 @@
 class DropBoxController {
   constructor() {
 
-
+    this.currentFolder = ['dropbox'];
 
     this.btnSendFileEl = document.querySelector('#btn-send-file');
     this.inputFilesEl = document.querySelector('#files');
@@ -12,7 +12,7 @@ class DropBoxController {
     this.listFilesEl = document.querySelector('#list-of-files-and-directories')
     this.onselectionchange = new Event('selectionchange');
 
-    this.currentFolder = ['dropbox'];
+
 
     this.btnNewFolder = document.querySelector('#btn-new-folder');
     this.btnRename = document.querySelector('#btn-rename');
@@ -22,7 +22,8 @@ class DropBoxController {
 
     this.connectFirebase();
     this.initEvents();
-    this.readfiles();
+
+    this.openFolder();
 
   }
 
@@ -85,7 +86,7 @@ class DropBoxController {
 
   initEvents() {
 
-    this.btnNewFolder.addEventListener( "click" , e => {
+    this.btnNewFolder.addEventListener("click", e => {
 
       let name = prompt("Nome da nova pasta: ");
 
@@ -93,8 +94,8 @@ class DropBoxController {
 
         this.getFirebaseRef().push().set({
           name,
-          mimetype:'folder',
-          filepath:this.currentFolder.join('/')
+          mimetype: 'folder',
+          filepath: this.currentFolder.join('/')
         });
 
       }
@@ -195,9 +196,11 @@ class DropBoxController {
 
   }
 
-  getFirebaseRef() {
+  getFirebaseRef(path) {
 
-    return firebase.database().ref('files')
+    if (!path) path = this.currentFolder.join('/');
+
+    return firebase.database().ref(path);
 
   }
 
@@ -506,18 +509,18 @@ class DropBoxController {
     li.dataset.key = key;
     li.dataset.file = JSON.stringify(file);
 
-    if(file.originalFilename){
-      li.innerHTML =  `
+    if (file.originalFilename) {
+      li.innerHTML = `
           ${this.getFileIconView(file)}
           <div class="name text-center">${file.originalFilename}</div>
       `;
-  }
-  else if(file.name){
-      li.innerHTML =  `
+    }
+    else if (file.name) {
+      li.innerHTML = `
           ${this.getFileIconView(file)}
           <div class="name text-center">${file.name}</div>
       `;
-  }
+    }
 
     this.initEventsLi(li);
 
@@ -527,6 +530,8 @@ class DropBoxController {
 
 
   readfiles() {
+
+    this.lastFolder = this.currentFolder.join('/');
 
     this.getFirebaseRef().on('value', snapshot => {
 
@@ -545,7 +550,38 @@ class DropBoxController {
     });
   }
 
+  openFolder() {
+
+    if (this.lastFolder) this.getFirebaseRef(this.lastFolder).off('value');
+
+
+    this.readfiles();
+
+
+  }
+
   initEventsLi(li) {
+
+    li.addEventListener('dblclick', e => {
+
+      let file = JSON.parse(li.dataset.file);
+
+      switch (file.mimetype || file.type) {
+
+        case 'folder':
+
+          this.currentFolder.push(file.name);
+          this.openFolder();
+
+          break;
+
+        default:
+
+          window.open('/file?path=' + file.path);
+
+      }
+
+    })
 
     li.addEventListener('click', e => {
 
