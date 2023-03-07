@@ -3,6 +3,7 @@ class DropBoxController {
 
     this.currentFolder = ['dropbox'];
 
+    this.onselectionchange = new Event('selectionchange');
 
     this.navEl = document.querySelector('#browse-location');
     this.btnSendFileEl = document.querySelector('#btn-send-file');
@@ -12,9 +13,6 @@ class DropBoxController {
     this.namefileEl = this.snackModalEl.querySelector('.filename')
     this.timeleftEl = this.snackModalEl.querySelector('.timeleft')
     this.listFilesEl = document.querySelector('#list-of-files-and-directories')
-    this.onselectionchange = new Event('selectionchange');
-
-
 
     this.btnNewFolder = document.querySelector('#btn-new-folder');
     this.btnRename = document.querySelector('#btn-rename');
@@ -88,9 +86,9 @@ class DropBoxController {
 
   initEvents() {
 
-    this.btnNewFolder.addEventListener("click", e => {
+    this.btnNewFolder.addEventListener('click', e => {
 
-      let name = prompt("Nome da nova pasta: ");
+      let name = prompt('Nome da nova pasta: ');
 
       if (name) {
 
@@ -132,8 +130,8 @@ class DropBoxController {
       switch (this.getSelection().length) {
 
         case 0:
-          this.btnDelete.style.display = '';
-          this.btnRename.style.display = '';
+          this.btnDelete.style.display = 'none';
+          this.btnRename.style.display = 'none';
           break;
 
         case 1:
@@ -153,13 +151,13 @@ class DropBoxController {
     });
 
 
-    this.btnSendFileEl.addEventListener('click', event => {
+    this.btnSendFileEl.addEventListener("click", event => {
 
       this.inputFilesEl.click();
 
     });
 
-    this.inputFilesEl.addEventListener('change', event => {
+    this.inputFilesEl.addEventListener("change", event => {
 
       this.btnSendFileEl.disabled = true;
 
@@ -180,7 +178,7 @@ class DropBoxController {
 
         this.uploadComplete();
 
-      }).catch(err => {
+      }).catch((err) => {
 
         this.uploadComplete();
         console.log(err);
@@ -198,7 +196,7 @@ class DropBoxController {
 
     this.modalShow(false);
 
-    this.inputFilesEl.value = '';
+    this.inputFilesEl.value = "";
 
     this.btnSendFileEl.disabled = false;
 
@@ -216,7 +214,7 @@ class DropBoxController {
 
   modalShow(show = true) {
 
-    this.snackModalEl.style.display = (show) ? 'block' : 'none';
+    this.snackModalEl.style.display = show ? 'block' : 'none';
 
 
   }
@@ -365,7 +363,7 @@ class DropBoxController {
     console.log(file.mimetype)
 
     switch (file.mimetype || file.type) {
-      case 'folder':
+      case "folder":
 
         return `
 
@@ -378,7 +376,7 @@ class DropBoxController {
        </svg>`;
         break;
 
-      case 'application/pdf':
+      case "application/pdf":
 
         return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
         <filter height="102%" width="101.4%" id="mc-content-unknown-large-a" filterUnits="objectBoundingBox" y="-.5%" x="-.7%">
@@ -414,8 +412,8 @@ class DropBoxController {
     </svg>`;
         break;
 
-      case 'audio/mp3':
-      case 'audio/ogg':
+      case "audio/mp3":
+      case "audio/ogg":
 
         return `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
         <title>content-audio-large</title>
@@ -437,8 +435,8 @@ class DropBoxController {
 
         break;
 
-      case 'video/mp4':
-      case 'video/quicktime':
+      case "video/mp4":
+      case "video/quicktime":
 
         return `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
       <title>content-video-large</title>
@@ -461,10 +459,10 @@ class DropBoxController {
         break;
 
 
-      case 'image/jpeg':
-      case 'image/jpg':
-      case 'image/png':
-      case 'image/gif':
+      case "image/jpeg":
+      case "image/jpg":
+      case "image/png":
+      case "image/gif":
         return `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
                   <filter height="102%" width="101.4%" id="mc-content-unknown-large-a" filterUnits="objectBoundingBox" y="-.5%" x="-.7%">
                       <feOffset result="shadowOffsetOuter1" in="SourceAlpha" dy="1"></feOffset>
@@ -560,16 +558,16 @@ class DropBoxController {
 
     this.lastFolder = this.currentFolder.join('/');
 
-    this.getFirebaseRef().on('value', snapshot => {
+    this.getFirebaseRef().on("value", (snapshot) => {
 
-      this.listFilesEl.innerHTML = '';
+      this.listFilesEl.innerHTML = "";
 
       snapshot.forEach(snapshotItem => {
 
         let key = snapshotItem.key;
         let data = snapshotItem.val();
 
-        if (data.mimetype) {
+        if (data.mimetype || data.type) {
 
           this.listFilesEl.appendChild(this.getFileView(data, key));
 
@@ -729,7 +727,7 @@ class DropBoxController {
 
         })
 
-      }
+      } 
 
       li.classList.toggle('selected');
 
