@@ -63,20 +63,31 @@ class DropBoxController {
       let file = JSON.parse(li.dataset.file);
       let key = li.dataset.key;
 
-      //console.log(file, key)
+      promises.push(new Promise((resolve, reject) => {
 
-      let formData = new FormData();
+        let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
 
-      formData.append('path', file.filepath);
+        fileRef.delete().then(() => {
 
-      formData.append('key', key);
+          resolve({
 
-      promises.push(this.ajax('/file', 'DELETE', formData));
+            fields: {
+              key
+            }
 
+          })
+
+        }).catch(err => {
+
+          reject(err);
+
+        });
+
+      }));
+      
       if (key) {
-
         this.getFirebaseRef().child(key).remove();
-      }
+    }
 
     });
 
@@ -94,7 +105,7 @@ class DropBoxController {
 
         this.getFirebaseRef().push().set({
           name,
-          mimetype: 'folder',
+          type: 'folder',
           filepath: this.currentFolder.join('/')
         });
 
@@ -130,8 +141,8 @@ class DropBoxController {
       switch (this.getSelection().length) {
 
         case 0:
-          this.btnDelete.style.display = 'none';
-          this.btnRename.style.display = 'none';
+          this.btnDelete.style.display = '';
+          this.btnRename.style.display = '';
           break;
 
         case 1:
@@ -282,7 +293,7 @@ class DropBoxController {
           this.uploadProgress({
             loaded: snapshot.bytesTransferred,
             total: snapshot.totalBytes
-          } ,file); 
+          }, file);
 
         }, error => {
 
@@ -291,11 +302,11 @@ class DropBoxController {
 
         }, () => {
 
-          fileRef.getMetadata().then(metadata =>{
+          fileRef.getMetadata().then(metadata => {
 
             resolve(metadata);
 
-          }).catch(err=>{
+          }).catch(err => {
 
             reject(err);
           });
@@ -360,7 +371,7 @@ class DropBoxController {
 
   getFileIconView(file) {
 
-    console.log(file.mimetype)
+    console.log(file.type)
 
     switch (file.mimetype || file.type) {
       case "folder":
@@ -727,7 +738,7 @@ class DropBoxController {
 
         })
 
-      } 
+      }
 
       li.classList.toggle('selected');
 
@@ -746,8 +757,8 @@ class DropBoxController {
 /*service firebase.storage {
  match /b/{bucket}/o {
   match /{allPaths=**} {
-  	allow read , write;
-  	}
+    allow read , write;
+    }
     }
  }
  
