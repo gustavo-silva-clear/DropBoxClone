@@ -62,6 +62,8 @@ class DropBoxController {
 
       folderRef.on('value', snapshot => {
 
+        folderRef.off('value');
+
         snapshot.forEach(item => {
 
           let data = item.val()
@@ -113,7 +115,7 @@ class DropBoxController {
         });
 
         folderRef.remove();
-        folderRef.off('value');
+        
 
       });
 
